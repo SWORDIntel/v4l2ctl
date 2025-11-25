@@ -6,7 +6,7 @@ CFLAGS += -I../include
 LDFLAGS = -L../lib -ldsv4l2 -ldsv4l2rt -lpthread
 
 # Test programs
-TESTS = test_basic test_profiles test_policy
+TESTS = test_basic test_profiles test_policy test_metadata
 
 .PHONY: all clean
 
@@ -33,3 +33,7 @@ test_profiles: test_profiles.c
 test_policy: test_policy.c
 	@echo "CC $@"
 	@$(CC) $(CFLAGS) $< $(LDFLAGS) -o $@
+
+test_metadata: test_metadata.c
+	@echo "CC $@"
+	@$(CC) $(CFLAGS) $< $(LDFLAGS) -lm -o $@

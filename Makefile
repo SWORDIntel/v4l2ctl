@@ -26,7 +26,8 @@ CORE_SRCS = $(SRC_DIR)/device.c \
             $(SRC_DIR)/capture.c \
             $(SRC_DIR)/format.c \
             $(SRC_DIR)/profiles/profile_loader.c \
-            $(SRC_DIR)/policy/dsmil_bridge.c
+            $(SRC_DIR)/policy/dsmil_bridge.c \
+            $(SRC_DIR)/metadata.c
 
 RUNTIME_SRCS = $(SRC_DIR)/runtime/event_buffer.c
 
