@@ -8,7 +8,7 @@
     extern "C" {
     #endif
 
-    typedef struct dsv4l2_device dsv4l2_device_t;
+    /* Forward declaration for metadata handle (not yet defined) */
     typedef struct dsv4l2_meta_handle dsv4l2_meta_handle_t;
 
     dsv4l2_tempest_state_t

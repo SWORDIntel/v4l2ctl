@@ -1,0 +1,18 @@
+# Iris Scanner Profile
+# For biometric iris recognition cameras
+
+id: "046d:0825"
+vendor: "Logitech"
+model: "C270 HD Webcam (Iris Mode)"
+role: "iris_scanner"
+layer: 3
+classification: "SECRET_BIOMETRIC"
+
+# High-resolution for iris detail
+pixel_format: "YUYV"
+width: 1280
+height: 720
+fps: 60
+
+# TEMPEST control (custom v4l2 control)
+tempest_ctrl_id: 0x9a0902
