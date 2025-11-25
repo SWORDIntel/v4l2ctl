@@ -12,6 +12,7 @@
 #include "dsv4l2_policy.h"
 #include "dsv4l2rt.h"
 #include "dsv4l2_profiles.h"
+#include "dsv4l2_dsmil.h"
 
 #include <linux/videodev2.h>
 #include <sys/ioctl.h>
@@ -106,6 +107,21 @@ int dsv4l2_open(const char *path, const char *role, dsv4l2_device_t **out)
 
     /* Load device profile (if available) */
     load_device_profile(path, role, dev);
+
+    /* Check clearance - must have sufficient clearance for device */
+    rc = dsv4l2_check_clearance(role, dev->classification ? dev->classification : "UNCLASSIFIED");
+    if (rc != 0) {
+        /* Access denied - insufficient clearance */
+        dsv4l2rt_emit_simple(dev->dev_id, DSV4L2_EVENT_POLICY_VIOLATION,
+                             DSV4L2_SEV_CRITICAL, 0);
+        close(dev->public.fd);
+        free((void *)dev->public.dev_path);
+        free((void *)dev->public.role);
+        free(dev->classification);
+        free(dev->profile_path);
+        free(dev);
+        return -EPERM;
+    }
 
     /* Initialize TEMPEST state to DISABLED */
     dev->tempest = DSV4L2_TEMPEST_DISABLED;

@@ -25,7 +25,8 @@ CORE_SRCS = $(SRC_DIR)/device.c \
             $(SRC_DIR)/buffer.c \
             $(SRC_DIR)/capture.c \
             $(SRC_DIR)/format.c \
-            $(SRC_DIR)/profiles/profile_loader.c
+            $(SRC_DIR)/profiles/profile_loader.c \
+            $(SRC_DIR)/policy/dsmil_bridge.c
 
 RUNTIME_SRCS = $(SRC_DIR)/runtime/event_buffer.c
 
@@ -66,7 +67,7 @@ runtime: $(RUNTIME_LIB)
 $(BUILD_DIR) $(LIB_DIR):
 	@mkdir -p $@
 
-$(BUILD_DIR)/runtime $(BUILD_DIR)/profiles:
+$(BUILD_DIR)/runtime $(BUILD_DIR)/profiles $(BUILD_DIR)/policy:
 	@mkdir -p $@
 
 # Build core library (static)
@@ -85,7 +86,7 @@ $(RUNTIME_LIB): $(RUNTIME_OBJS) | $(LIB_DIR)
 	@ar rcs $@ $^
 
 # Compile source files
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR) $(BUILD_DIR)/runtime $(BUILD_DIR)/profiles
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR) $(BUILD_DIR)/runtime $(BUILD_DIR)/profiles $(BUILD_DIR)/policy
 	@echo "CC $<"
 	@$(CC) $(CFLAGS) -c $< -o $@
 

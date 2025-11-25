@@ -1,4 +1,3 @@
-\
     #ifndef DSV4L2_ANNOTATIONS_H
     #define DSV4L2_ANNOTATIONS_H
 

@@ -4,7 +4,7 @@
 id: "generic_webcam"
 vendor: "Generic"
 model: "USB Webcam"
-role: "camera"
+role: "generic_webcam"
 layer: 3
 classification: "UNCLASSIFIED"
 

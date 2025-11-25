@@ -6,7 +6,7 @@ vendor: "SecureCam"
 model: "TEMPEST-Compliant Camera"
 role: "tempest_cam"
 layer: 3
-classification: "TEMPEST_ONLY"
+classification: "TOP_SECRET_TEMPEST"
 
 # Standard format
 pixel_format: "YUYV"

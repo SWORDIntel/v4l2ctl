@@ -1,4 +1,3 @@
-\
     #ifndef DSV4L2_POLICY_H
     #define DSV4L2_POLICY_H
 
