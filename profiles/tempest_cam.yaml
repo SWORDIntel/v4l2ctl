@@ -1,0 +1,18 @@
+# TEMPEST-Aware Camera Profile
+# For cameras with electromagnetic shielding capabilities
+
+id: "tempest_cam_001"
+vendor: "SecureCam"
+model: "TEMPEST-Compliant Camera"
+role: "tempest_cam"
+layer: 3
+classification: "TEMPEST_ONLY"
+
+# Standard format
+pixel_format: "YUYV"
+width: 1920
+height: 1080
+fps: 30
+
+# TEMPEST control (primary feature)
+tempest_ctrl_id: 0x9a0902

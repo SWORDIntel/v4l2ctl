@@ -1,0 +1,18 @@
+# Infrared Sensor Profile
+# For IR cameras and thermal imaging devices
+
+id: "ir_sensor_001"
+vendor: "FLIR"
+model: "Thermal Camera"
+role: "ir_sensor"
+layer: 3
+classification: "SECRET"
+
+# IR-specific format
+pixel_format: "GREY"
+width: 640
+height: 480
+fps: 30
+
+# TEMPEST control
+tempest_ctrl_id: 0x9a0902

@@ -11,6 +11,7 @@
 #include "dsv4l2_annotations.h"
 #include "dsv4l2_policy.h"
 #include "dsv4l2rt.h"
+#include "dsv4l2_profiles.h"
 
 #include <linux/videodev2.h>
 #include <sys/ioctl.h>
@@ -318,15 +319,27 @@ static uint32_t hash_device_path(const char *path)
 /**
  * Load device profile from profiles/ directory
  *
- * This is a stub - Phase 3 will implement full YAML profile loading
- * For now, just sets some defaults based on role
+ * Tries to find a matching profile by device ID or role
  */
 static int load_device_profile(const char *path, const char *role,
                                 dsv4l2_device_internal_t *dev)
 {
-    (void)path;  /* Unused for now */
+    const dsv4l2_device_profile_t *profile = NULL;
 
-    /* Set classification based on role */
+    (void)path;  /* TODO: extract USB VID:PID from sysfs */
+
+    /* Try to find profile by role */
+    profile = dsv4l2_find_profile_by_role(role);
+
+    if (profile) {
+        /* Apply profile settings */
+        dev->classification = strdup(profile->classification);
+        dev->tempest_ctrl_id = profile->tempest_ctrl_id;
+        dev->profile_path = strdup(profile->filename);
+        return 0;
+    }
+
+    /* No profile found - use defaults based on role */
     if (strcmp(role, "iris_scanner") == 0) {
         dev->classification = strdup("SECRET_BIOMETRIC");
         dev->tempest_ctrl_id = 0x9a0902;
