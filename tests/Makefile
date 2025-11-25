@@ -21,7 +21,7 @@ ifeq ($(COVERAGE),1)
 endif
 
 # Test programs
-TESTS = test_basic test_profiles test_policy test_metadata test_runtime test_integration test_tpm
+TESTS = test_basic test_profiles test_policy test_metadata test_runtime test_integration test_tpm test_hardware_detect
 
 .PHONY: all clean
 
@@ -62,5 +62,9 @@ test_integration: test_integration.c
 	@$(CC) $(CFLAGS) $< $(LDFLAGS) -o $@
 
 test_tpm: test_tpm.c
+	@echo "CC $@"
+	@$(CC) $(CFLAGS) $< $(LDFLAGS) -o $@
+
+test_hardware_detect: test_hardware_detect.c
 	@echo "CC $@"
 	@$(CC) $(CFLAGS) $< $(LDFLAGS) -o $@
