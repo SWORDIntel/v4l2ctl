@@ -1,0 +1,31 @@
+# Build artifacts
+build/
+lib/
+*.o
+*.a
+*.so
+*.so.*
+
+# Test binaries
+tests/test_basic
+tests/test_*
+!tests/test_*.c
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
