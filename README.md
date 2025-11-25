@@ -1,4 +1,4 @@
-# DSV4L2 - DSLLVM-Enhanced Video4Linux2 Sensor Stack
+# DSV4L2 – Dedicated Subsystems Military V4L2 Sensor Stack
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![Test Coverage](https://img.shields.io/badge/coverage-99.2%25-brightgreen)
