@@ -79,7 +79,7 @@ CLI_BIN = bin/dsv4l2
 CLI_SRC = $(SRC_DIR)/cli/main.c
 
 # Targets
-.PHONY: all clean libs core runtime test install cli coverage coverage-clean coverage-report fuzz fuzz-run fuzz-clean
+.PHONY: all clean libs core runtime test install cli coverage coverage-clean coverage-report fuzz fuzz-run fuzz-clean perf perf-build perf-run perf-baseline perf-clean
 
 all: libs cli
 
@@ -203,6 +203,31 @@ fuzz-clean:
 	@echo "Cleaning fuzzing artifacts..."
 	@rm -rf fuzz/findings fuzz/fuzz_klv_parser
 
+# Performance benchmarking
+.PHONY: perf perf-build perf-run perf-baseline perf-clean
+
+perf-build:
+	@echo "Building performance benchmark..."
+	@$(MAKE) libs
+	@mkdir -p perf
+	@$(CC) $(CFLAGS) perf/benchmark.c -L$(LIB_DIR) -ldsv4l2 -ldsv4l2rt $(LDFLAGS) -o perf/benchmark
+
+perf-run: perf-build
+	@echo "Running performance regression test..."
+	@./scripts/run_perf.sh
+
+perf-baseline: perf-build
+	@echo "Creating new performance baseline..."
+	@mkdir -p perf
+	@LD_LIBRARY_PATH=lib:$$LD_LIBRARY_PATH ./perf/benchmark perf/baseline.json
+	@echo "Baseline saved to perf/baseline.json"
+
+perf-clean:
+	@echo "Cleaning performance artifacts..."
+	@rm -rf perf/benchmark perf/current.json
+
+perf: perf-run
+
 # Help
 help:
 	@echo "DSV4L2 Build System"
@@ -221,6 +246,9 @@ help:
 	@echo "  fuzz            - Build AFL fuzzing harness"
 	@echo "  fuzz-run        - Run AFL fuzzing session"
 	@echo "  fuzz-clean      - Remove fuzzing artifacts"
+	@echo "  perf            - Run performance regression tests"
+	@echo "  perf-baseline   - Create new performance baseline"
+	@echo "  perf-clean      - Remove performance artifacts"
 	@echo ""
 	@echo "Standard build:"
 	@echo "  make"
@@ -236,6 +264,9 @@ help:
 	@echo ""
 	@echo "Fuzzing with AFL:"
 	@echo "  make fuzz-run"
+	@echo ""
+	@echo "Performance regression testing:"
+	@echo "  make perf"
 	@echo ""
 	@echo "Variables:"
 	@echo "  CC        - Compiler (default: gcc)"

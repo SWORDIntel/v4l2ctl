@@ -1,0 +1,30 @@
+{
+  "timestamp": 1764092277,
+  "benchmarks": [
+    {
+      "name": "event_emission",
+      "ops_per_sec": 4939522,
+      "time_per_op_ns": 202.4
+    },
+    {
+      "name": "threatcon_ops",
+      "ops_per_sec": 128361015,
+      "time_per_op_ns": 7.8
+    },
+    {
+      "name": "klv_parsing",
+      "ops_per_sec": 60591716,
+      "time_per_op_ns": 16.5
+    },
+    {
+      "name": "clearance_check",
+      "ops_per_sec": 32531173,
+      "time_per_op_ns": 30.7
+    },
+    {
+      "name": "event_buffer_ops",
+      "ops_per_sec": 131463,
+      "time_per_op_ns": 7606.7
+    }
+  ]
+}

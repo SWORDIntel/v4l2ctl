@@ -23,6 +23,10 @@ coverage_html/
 fuzz/findings/
 fuzz/fuzz_klv_parser
 
+# Performance data
+perf/benchmark
+perf/current.json
+
 # Python
 __pycache__/
 *.py[cod]
