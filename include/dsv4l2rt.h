@@ -189,6 +189,42 @@ int dsv4l2rt_get_signed_chunk(dsv4l2rt_chunk_header_t *header,
                                dsv4l2_event_t **events,
                                size_t *count);
 
+/**
+ * Initialize TPM2 context and load signing key.
+ * Only available when compiled with HAVE_TPM2.
+ *
+ * @param key_handle TPM2 persistent key handle (default: 0x81010001)
+ * @return 0 on success, -errno on failure
+ */
+int dsv4l2_tpm_init(uint32_t key_handle);
+
+/**
+ * Cleanup TPM2 context.
+ */
+void dsv4l2_tpm_cleanup(void);
+
+/**
+ * Sign event chunk with TPM2 hardware.
+ *
+ * @param events Array of events to sign
+ * @param count Number of events
+ * @param signature Output buffer for signature (must be 256 bytes)
+ * @return 0 on success, -errno on failure (-ENOSYS if TPM2 not available)
+ */
+int dsv4l2_tpm_sign_events(const dsv4l2_event_t *events, size_t count,
+                            uint8_t signature[256]);
+
+/**
+ * Verify TPM2 signature for forensic validation.
+ *
+ * @param events Array of events that were signed
+ * @param count Number of events
+ * @param signature Signature to verify
+ * @return 0 if valid, -EBADMSG if invalid, -errno on error
+ */
+int dsv4l2_tpm_verify_signature(const dsv4l2_event_t *events, size_t count,
+                                 const uint8_t signature[256]);
+
 #ifdef __cplusplus
 }
 #endif

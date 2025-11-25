@@ -6,6 +6,10 @@ CC ?= gcc
 # For DSLLVM build, use: make CC=dsclang DSLLVM=1
 DSLLVM ?= 0
 
+# Optional TPM2 hardware support
+# Set to 1 to enable TPM2-TSS integration: make HAVE_TPM2=1
+HAVE_TPM2 ?= 0
+
 # Directories
 SRC_DIR = src
 INC_DIR = include
@@ -29,7 +33,8 @@ CORE_SRCS = $(SRC_DIR)/device.c \
             $(SRC_DIR)/policy/dsmil_bridge.c \
             $(SRC_DIR)/metadata.c
 
-RUNTIME_SRCS = $(SRC_DIR)/runtime/event_buffer.c
+RUNTIME_SRCS = $(SRC_DIR)/runtime/event_buffer.c \
+               $(SRC_DIR)/runtime/tpm_sign.c
 
 # Object files
 CORE_OBJS = $(CORE_SRCS:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
@@ -51,6 +56,12 @@ ifeq ($(DSLLVM),1)
     CFLAGS += -fplugin-arg-dsllvm-pass-config=$(DSLLVM_CONFIG)
     CFLAGS += -fdsv4l2-profile=$(PROFILE)
     CFLAGS += -mdsv4l2-mission=$(MISSION)
+endif
+
+# TPM2 flags (if enabled)
+ifeq ($(HAVE_TPM2),1)
+    CFLAGS += -DHAVE_TPM2
+    LDFLAGS += -ltss2-esys -ltss2-rc -ltss2-mu -lcrypto
 endif
 
 # CLI tool
@@ -146,8 +157,12 @@ help:
 	@echo "DSLLVM build:"
 	@echo "  make CC=dsclang DSLLVM=1 PROFILE=ops MISSION=operation_name"
 	@echo ""
+	@echo "TPM2 hardware build:"
+	@echo "  make HAVE_TPM2=1"
+	@echo ""
 	@echo "Variables:"
-	@echo "  CC       - Compiler (default: gcc)"
-	@echo "  DSLLVM   - Enable DSLLVM (0 or 1, default: 0)"
-	@echo "  PROFILE  - Instrumentation profile (off|ops|exercise|forensic, default: ops)"
-	@echo "  MISSION  - Mission context tag (default: dev)"
+	@echo "  CC        - Compiler (default: gcc)"
+	@echo "  DSLLVM    - Enable DSLLVM (0 or 1, default: 0)"
+	@echo "  HAVE_TPM2 - Enable TPM2-TSS hardware support (0 or 1, default: 0)"
+	@echo "  PROFILE   - Instrumentation profile (off|ops|exercise|forensic, default: ops)"
+	@echo "  MISSION   - Mission context tag (default: dev)"

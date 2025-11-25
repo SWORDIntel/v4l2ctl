@@ -1,12 +1,20 @@
 # DSV4L2 Tests Makefile
 
 CC ?= gcc
+HAVE_TPM2 ?= 0
+
 CFLAGS = -Wall -Wextra -O2 -g
 CFLAGS += -I../include
 LDFLAGS = -L../lib -ldsv4l2 -ldsv4l2rt -lpthread
 
+# TPM2 support
+ifeq ($(HAVE_TPM2),1)
+    CFLAGS += -DHAVE_TPM2
+    LDFLAGS += -ltss2-esys -ltss2-rc -ltss2-mu -lcrypto
+endif
+
 # Test programs
-TESTS = test_basic test_profiles test_policy test_metadata test_runtime test_integration
+TESTS = test_basic test_profiles test_policy test_metadata test_runtime test_integration test_tpm test_hardware
 
 .PHONY: all clean
 
@@ -43,5 +51,13 @@ test_runtime: test_runtime.c
 	@$(CC) $(CFLAGS) $< $(LDFLAGS) -o $@
 
 test_integration: test_integration.c
+	@echo "CC $@"
+	@$(CC) $(CFLAGS) $< $(LDFLAGS) -o $@
+
+test_tpm: test_tpm.c
+	@echo "CC $@"
+	@$(CC) $(CFLAGS) $< $(LDFLAGS) -o $@
+
+test_hardware: test_hardware.c
 	@echo "CC $@"
 	@$(CC) $(CFLAGS) $< $(LDFLAGS) -o $@

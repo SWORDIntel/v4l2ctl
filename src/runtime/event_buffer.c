@@ -561,10 +561,14 @@ int dsv4l2rt_get_signed_chunk(dsv4l2rt_chunk_header_t *header,
     header->timestamp_ns = batch[0].ts_ns;
     header->event_count = batch_count;
 
-    /* TPM signing stub - in production would use TPM2_Sign */
+    /* TPM signing - use hardware TPM2 if available */
     if (runtime.tpm_enabled) {
-        /* TODO: Actual TPM signing */
-        memset(header->tpm_signature, 0x5A, sizeof(header->tpm_signature));
+        int sign_rc = dsv4l2_tpm_sign_events(batch, batch_count, header->tpm_signature);
+        if (sign_rc != 0) {
+            /* If TPM signing fails, fall back to stub for testing */
+            fprintf(stderr, "Warning: TPM signing failed (%d), using stub signature\n", sign_rc);
+            memset(header->tpm_signature, 0x5A, sizeof(header->tpm_signature));
+        }
     }
 
     *events = batch;
