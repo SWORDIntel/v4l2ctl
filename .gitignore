@@ -22,6 +22,9 @@ coverage_html/
 # Fuzzing data
 fuzz/findings/
 fuzz/fuzz_klv_parser
+fuzz/findings_ai/
+fuzz/fuzz_ai_guided
+fuzz/feedback.json
 
 # Performance data
 perf/benchmark

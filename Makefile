@@ -79,7 +79,7 @@ CLI_BIN = bin/dsv4l2
 CLI_SRC = $(SRC_DIR)/cli/main.c
 
 # Targets
-.PHONY: all clean libs core runtime test install cli coverage coverage-clean coverage-report fuzz fuzz-run fuzz-clean perf perf-build perf-run perf-baseline perf-clean
+.PHONY: all clean libs core runtime test install cli coverage coverage-clean coverage-report fuzz fuzz-run fuzz-clean fuzz-ai fuzz-ai-run fuzz-ai-analyze fuzz-ai-clean perf perf-build perf-run perf-baseline perf-clean
 
 all: libs cli
 
@@ -203,6 +203,43 @@ fuzz-clean:
 	@echo "Cleaning fuzzing artifacts..."
 	@rm -rf fuzz/findings fuzz/fuzz_klv_parser
 
+# AI-Guided Fuzzing with OpenVINO
+.PHONY: fuzz-ai fuzz-ai-run fuzz-ai-analyze fuzz-ai-clean
+
+fuzz-ai:
+	@echo "Building AI-guided fuzzing harness..."
+	@$(MAKE) libs
+	@echo "CC fuzz/fuzz_ai_guided.c"
+	@$(CC) $(CFLAGS) -I$(INC_DIR) -O2 -g fuzz/fuzz_ai_guided.c -L$(LIB_DIR) -ldsv4l2 -ldsv4l2rt $(LDFLAGS) -o fuzz/fuzz_ai_guided
+	@echo "AI-guided fuzzing harness built: fuzz/fuzz_ai_guided"
+
+fuzz-ai-run: fuzz-ai
+	@echo "Starting OpenVINO-accelerated distributed fuzzing..."
+	@./scripts/run_ai_fuzz.sh
+
+fuzz-ai-analyze:
+	@echo "Analyzing crashes for exploitability..."
+	@if [ -d fuzz/findings_ai ]; then \
+		for device_dir in fuzz/findings_ai/*; do \
+			if [ -d "$$device_dir/crashes" ]; then \
+				crash_count=$$(find "$$device_dir/crashes" -name "*.bin" 2>/dev/null | wc -l); \
+				if [ "$$crash_count" -gt 0 ]; then \
+					echo "Analyzing $$crash_count crashes in $$device_dir..."; \
+					python3 fuzz/exploit_detector.py \
+						fuzz/fuzz_ai_guided \
+						"$$device_dir/crashes" \
+						-o "$$device_dir/analysis.json"; \
+				fi; \
+			fi; \
+		done; \
+	else \
+		echo "No fuzzing findings to analyze. Run 'make fuzz-ai-run' first."; \
+	fi
+
+fuzz-ai-clean:
+	@echo "Cleaning AI fuzzing artifacts..."
+	@rm -rf fuzz/findings_ai fuzz/fuzz_ai_guided fuzz/feedback.json
+
 # Performance benchmarking
 .PHONY: perf perf-build perf-run perf-baseline perf-clean
 
@@ -246,6 +283,10 @@ help:
 	@echo "  fuzz            - Build AFL fuzzing harness"
 	@echo "  fuzz-run        - Run AFL fuzzing session"
 	@echo "  fuzz-clean      - Remove fuzzing artifacts"
+	@echo "  fuzz-ai         - Build AI-guided fuzzing harness"
+	@echo "  fuzz-ai-run     - Run OpenVINO-accelerated distributed fuzzing"
+	@echo "  fuzz-ai-analyze - Analyze crashes for exploitability"
+	@echo "  fuzz-ai-clean   - Remove AI fuzzing artifacts"
 	@echo "  perf            - Run performance regression tests"
 	@echo "  perf-baseline   - Create new performance baseline"
 	@echo "  perf-clean      - Remove performance artifacts"
@@ -264,6 +305,9 @@ help:
 	@echo ""
 	@echo "Fuzzing with AFL:"
 	@echo "  make fuzz-run"
+	@echo ""
+	@echo "AI-guided fuzzing with OpenVINO:"
+	@echo "  make fuzz-ai-run"
 	@echo ""
 	@echo "Performance regression testing:"
 	@echo "  make perf"
