@@ -15,6 +15,13 @@
      *   - dsmil_requires_tempest_check
      *   - dsmil_quantum_candidate
      *
+     * Plus instrumentation/telemetry attributes:
+     *   - dsv4l2_sensor (role, layer, classification)
+     *   - dsv4l2_tempest_control
+     *   - dsv4l2_meta_stream
+     *   - dsv4l2_event (event_name, severity)
+     *   - dsmil_device (layer, role)
+     *
      * On non-DSLLVM compilers, they can be configured to expand to nothing.
      */
 
@@ -28,6 +35,7 @@
     #  define DSMIL_ATTR(x)
     #endif
 
+    /* Core DSMIL security attributes */
     #define DSMIL_SECRET(tag)                 DSMIL_ATTR(dsmil_secret(tag))
     #define DSMIL_SECRET_REGION               DSMIL_ATTR(dsmil_secret_region)
     #define DSMIL_META(tag)                   DSMIL_ATTR(dsmil_meta(tag))
@@ -36,6 +44,15 @@
     #define DSMIL_TEMPEST_TRANSITION          DSMIL_ATTR(dsmil_tempest_transition)
     #define DSMIL_REQUIRES_TEMPEST_CHECK      DSMIL_ATTR(dsmil_requires_tempest_check)
     #define DSMIL_QUANTUM_CANDIDATE(tag)      DSMIL_ATTR(dsmil_quantum_candidate(tag))
+
+    /* Instrumentation & telemetry attributes */
+    #define DSMIL_DEVICE(layer, role)         DSMIL_ATTR(dsmil_device(layer, role))
+    #define DSV4L2_SENSOR(role, layer, classification) \
+        DSMIL_ATTR(dsv4l2_sensor(role, layer, classification))
+    #define DSV4L2_TEMPEST_CONTROL            DSMIL_ATTR(dsv4l2_tempest_control)
+    #define DSV4L2_META_STREAM(kind)          DSMIL_ATTR(dsv4l2_meta_stream(kind))
+    #define DSV4L2_EVENT(event_name, severity) \
+        DSMIL_ATTR(dsv4l2_event(event_name, severity))
 
     #include <stddef.h>
     #include <stdint.h>
@@ -56,5 +73,13 @@
         DSV4L2_TEMPEST_HIGH     = 2,
         DSV4L2_TEMPEST_LOCKDOWN = 3,
     } dsv4l2_tempest_state_t;
+
+    /* Device handle (annotated with DSMIL layer and role) */
+    typedef struct {
+        int         fd;
+        const char *dev_path;
+        const char *role;
+        uint32_t    layer;
+    } dsv4l2_device_t;
 
     #endif /* DSV4L2_ANNOTATIONS_H */
