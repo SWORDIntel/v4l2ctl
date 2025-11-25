@@ -1,0 +1,123 @@
+# dsllvm_dsv4l2_passes.yaml
+#
+# DSLLVM pass configuration for the dsv4l2 library:
+#  - Secret-flow enforcement for sensor data
+#  - TEMPEST policy enforcement
+#  - Constant-time checking on sensitive paths
+
+pipeline:
+  - stage: "pre-opt"
+    matches:
+      module_name_glob: "dsv4l2_*"
+    passes:
+      - dsmil.secret_flow
+      - dsmil.tempest_policy
+      - dsmil.constant_time
+
+  - stage: "post-inlining"
+    matches:
+      module_name_glob: "dsv4l2_*"
+    passes:
+      - dsmil.secret_flow
+
+passes:
+  dsmil.secret_flow:
+    mode: "enforce"          # "audit" | "warn" | "enforce"
+    attributes:
+      secret_value_attrs:
+        - "dsmil_secret"
+      secret_region_attrs:
+        - "dsmil_secret_region"
+    classify:
+      types_as_secret:
+        - "struct.dsv4l2_frame_t"
+        - "struct.dsv4l2_meta_t"
+      functions_returning_secret:
+        - "dsv4l2_capture_iris"
+        - "dsv4l2_fused_capture"
+      params_are_secret:
+        - function: "dsv4l2_store_encrypted"
+          params: [ "buf" ]
+    allowed_sinks:
+      - kind: "encrypted_storage"
+        functions:
+          - "dsv4l2_store_encrypted"
+      - kind: "secure_link"
+        functions:
+          - "dsv4l2_send_over_mtls"
+      - kind: "explicit_declassify"
+        functions:
+          - "dsmil_declassify"
+    forbidden_apis:
+      - "printf"
+      - "fprintf"
+      - "puts"
+      - "syslog"
+      - "send"
+      - "sendto"
+      - "write"
+    wrappers:
+      - name: "dsv4l2_encrypted_write"
+        kind: "encrypted_storage"
+    policies:
+      on_violation: "error"
+      log_violations: true
+      log_format: "sarif"
+      log_file: "dsv4l2_secret_flow.sarif"
+
+  dsmil.tempest_policy:
+    attributes:
+      tempest_state_enum: "dsmil_tempest"
+      tempest_query_attrs:
+        - "dsmil_tempest_query"
+      tempest_transition_attrs:
+        - "dsmil_tempest_transition"
+      requires_check_attrs:
+        - "dsmil_requires_tempest_check"
+    symbols:
+      state_type: "enum.dsv4l2_tempest_state_t"
+      query_functions:
+        - "dsv4l2_get_tempest_state"
+      policy_functions:
+        - "dsv4l2_policy_check"
+      transition_functions:
+        - "dsv4l2_set_tempest_state"
+    policies:
+      require_policy_call: true
+      forbid_states_on_output:
+        - "DSV4L2_TEMPEST_LOCKDOWN"
+      transitions:
+        allowed:
+          - from: "DSV4L2_TEMPEST_LOCKDOWN"
+            to:   "DSV4L2_TEMPEST_DISABLED"
+            require_function: "dsv4l2_authorize_unlock"
+    reporting:
+      on_missing_check:  "error"
+      on_forbidden_state: "error"
+      log_file: "dsv4l2_tempest_policy.sarif"
+
+  dsmil.constant_time:
+    mode: "enforce"
+    attributes:
+      secret_region_attrs:
+        - "dsmil_secret_region"
+      secret_value_attrs:
+        - "dsmil_secret"
+    scope:
+      functions:
+        - "dsv4l2_capture_iris"
+        - "dsv4l2_iris_preprocess"
+        - "dsv4l2_meta_radiometric_decode"
+      include_regions_with_attr: true
+    rules:
+      forbid_branch_on_secret: true
+      forbid_switch_on_secret: true
+      forbid_array_index_on_secret: true
+      allow_indexing_with_masked_secret: true
+    exceptions:
+      allowed_patterns:
+        - name: "memcpy_small"
+          intrinsic: "llvm.memcpy"
+    reporting:
+      on_violation: "error"
+      log_file: "dsv4l2_constant_time.sarif"
