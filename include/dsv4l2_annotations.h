@@ -1,6 +1,5 @@
-\
-    #ifndef DSV4L2_ANNOTATIONS_H
-    #define DSV4L2_ANNOTATIONS_H
+#ifndef DSV4L2_ANNOTATIONS_H
+#define DSV4L2_ANNOTATIONS_H
 
     /*
      * DSLLVM annotation helpers for the dsv4l2 library.
