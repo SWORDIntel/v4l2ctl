@@ -1,6 +1,5 @@
-\
-    #ifndef DSV4L2_POLICY_H
-    #define DSV4L2_POLICY_H
+#ifndef DSV4L2_POLICY_H
+#define DSV4L2_POLICY_H
 
     #include "dsv4l2_annotations.h"
 
