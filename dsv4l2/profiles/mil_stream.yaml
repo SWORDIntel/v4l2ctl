@@ -1,0 +1,52 @@
+# Military Video Stream Profile
+# For specialized video with embedded KLV metadata (STANAG 4609)
+# Supports high-bit-depth formats and H.264/H.265 with KLV
+
+id: "mil_video"
+role: "mil_stream"
+device_hint: "/dev/video3"
+classification: "CONFIDENTIAL"  # Adjust based on KLV content
+
+# H.264 with embedded KLV metadata
+# Falls back to high-resolution YUY
+
+V if H.264 not available
+pixel_format: "H264"
+resolution: [1920, 1080]
+fps: 30
+
+# Minimal controls (let encoder handle most settings)
+controls:
+  h264_profile: 100          # High profile
+  h264_level: 51             # Level 5.1
+  video_bitrate: 8000000     # 8 Mbps
+
+# TEMPEST control (likely present on military-grade cameras)
+tempest_control:
+  auto_detect: true
+  mode_map:
+    DISABLED: 0
+    LOW: 1
+    HIGH: 2
+    LOCKDOWN: 3
+
+# KLV metadata may be embedded in H.264 SEI or separate stream
+meta_device: ""              # Empty if KLV is in SEI, or "/dev/videoX" if separate
+meta_format: 2               # 2 = KLV (STANAG 4609 / MISB)
+
+advanced:
+  buffer_count: 8            # More buffers for H.264 encoding
+  streaming_mode: "mmap"
+  constant_time_required: false
+  quantum_candidate: true    # Mark for potential L7 offload
+
+# Notes:
+# - H.264/H.265 streams may embed KLV in SEI (Supplemental Enhancement Information)
+# - KLV parser will extract MISB standard fields:
+#   * GPS coordinates (lat/lon/alt)
+#   * Sensor orientation (roll/pitch/yaw)
+#   * Timestamp
+#   * Platform designation
+#   * Target info (if present)
+# - Some fields may be SECRET - DSLLVM will prevent logging/leakage
+# - For 10/12/14/16-bit grayscale, use pixel_format: "Y16"

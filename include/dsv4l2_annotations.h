@@ -57,16 +57,7 @@
     #include <stddef.h>
     #include <stdint.h>
 
-    typedef struct {
-        uint8_t *data;
-        size_t   len;
-    } DSMIL_SECRET("biometric_frame") dsv4l2_frame_t;
-
-    typedef struct {
-        uint8_t *data;
-        size_t   len;
-    } DSMIL_META("radiometric") dsv4l2_meta_t;
-
+    /* TEMPEST state enum - core types defined in dsv4l2_core.h */
     typedef enum DSMIL_TEMPEST {
         DSV4L2_TEMPEST_DISABLED = 0,
         DSV4L2_TEMPEST_LOW      = 1,

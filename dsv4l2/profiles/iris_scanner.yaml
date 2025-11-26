@@ -1,0 +1,63 @@
+# Iris Scanner Profile
+# For built-in cameras with USB bandwidth limitations
+# Uses MJPEG compression to achieve high resolution at good frame rates
+
+id: "builtin_iris"
+role: "iris_scanner"
+device_hint: "/dev/video0"
+classification: "SECRET_BIOMETRIC"
+
+# Format: MJPEG at 1280x720 @ 30fps
+# Note: MJPEG is used instead of YUYV due to USB bandwidth constraints
+# libv4l2 will automatically decompress to YUYV if needed
+pixel_format: "MJPG"
+resolution: [1280, 720]
+fps: 30
+
+# Iris-optimized control settings
+controls:
+  # Manual exposure for consistency
+  exposure_auto: 1           # 1 = manual mode
+  exposure_absolute: 50      # Fixed exposure time
+
+  # Manual focus at close distance (~30-50cm for iris)
+  focus_auto: 0              # 0 = manual focus
+  focus_absolute: 10         # Close focus (adjust based on device)
+
+  # Disable auto white balance (prefer raw data)
+  white_balance_temperature_auto: 0
+  white_balance_temperature: 4000
+
+  # Maximize sharpness for fine iris detail
+  sharpness: 255
+
+  # Disable auto gain
+  gain_automatic: 0
+  gain: 64
+
+# TEMPEST control (auto-detect)
+tempest_control:
+  auto_detect: true
+  # If found, map states:
+  mode_map:
+    DISABLED: 0
+    LOW: 1
+    HIGH: 2
+    LOCKDOWN: 3
+
+# No companion metadata device for basic iris scanner
+meta_device: ""
+meta_format: 0
+
+# Advanced options
+advanced:
+  buffer_count: 4
+  streaming_mode: "mmap"
+  constant_time_required: true   # DSLLVM constant-time enforcement
+  quantum_candidate: false
+
+# Notes for this profile:
+# - MJPEG decompression adds ~2-5ms latency but enables high-res capture
+# - Focus distance should be calibrated for your specific capture setup
+# - Exposure and gain values may need tuning based on lighting conditions
+# - For production, consider adding IR illuminator control if available

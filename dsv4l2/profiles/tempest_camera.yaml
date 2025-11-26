@@ -1,0 +1,44 @@
+# TEMPEST Camera Profile
+# For security-hardened cameras with privacy shutter controls
+
+id: "tempest_cam"
+role: "tempest_cam"
+device_hint: "/dev/video1"
+classification: "CONFIDENTIAL_VIDEO"
+
+# Standard HD format
+pixel_format: "YUYV"
+resolution: [1920, 1080]
+fps: 30
+
+# Default controls (normal operation)
+controls:
+  exposure_auto: 3           # 3 = aperture priority
+  focus_auto: 1              # 1 = continuous autofocus
+  brightness: 128
+  contrast: 128
+
+# TEMPEST control mapping
+# Example: vendor-specific privacy shutter control
+tempest_control:
+  id: 0x9a0F01               # Replace with actual control ID
+  mode_map:
+    DISABLED: 0              # Shutter open
+    LOW: 0                   # Shutter open (no difference from disabled)
+    HIGH: 1                  # Shutter closed
+    LOCKDOWN: 2              # Shutter locked closed + disable device
+  auto_detect: true          # Scan for PRIVACY/SECURE/TEMPEST controls
+
+meta_device: ""
+meta_format: 0
+
+advanced:
+  buffer_count: 4
+  streaming_mode: "mmap"
+  constant_time_required: false
+  quantum_candidate: false
+
+# Notes:
+# - TEMPEST states control physical privacy shutter if available
+# - LOCKDOWN state may disable device entirely (check vendor docs)
+# - Control ID should be discovered via v4l2-ctl --list-ctrls --all

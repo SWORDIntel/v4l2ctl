@@ -1,0 +1,40 @@
+# IR Metadata Sensor Profile
+# For thermal/radiometric sensors that output metadata-only streams
+# Example: FLIR Lepton, custom IR sensors
+
+id: "ir_thermal"
+role: "ir_sensor"
+device_hint: "/dev/video2"
+classification: "UNCLASSIFIED"  # Upgrade if thermal data is sensitive
+
+# Metadata format
+# Note: This device outputs metadata, not video frames
+pixel_format: "META"
+resolution: [0, 0]           # Not applicable for metadata-only
+fps: 9                       # Metadata packet rate (FLIR Lepton @ 9Hz)
+
+# No video controls for metadata-only device
+controls: {}
+
+# No TEMPEST control for basic IR sensor
+tempest_control:
+  auto_detect: false
+
+# Metadata device is this device itself
+meta_device: "/dev/video2"
+meta_format: 1               # 1 = FLIR radiometric format
+
+advanced:
+  buffer_count: 4
+  streaming_mode: "mmap"
+  constant_time_required: false
+  quantum_candidate: false
+
+# Notes:
+# - This profile is for V4L2_BUF_TYPE_META_CAPTURE devices
+# - Frame rate is actually metadata packet rate
+# - Metadata format 1 (FLIR) includes:
+#   * Temperature map (160x120 or 80x60 depending on Lepton model)
+#   * Min/max temperature
+#   * Calibration data
+# - For custom formats, set meta_format to 0 (RAW) and implement decoder
